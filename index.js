@@ -50,58 +50,10 @@ app.all('/', (req, res) => {
 })
 app.get('/profile', (req, res) => {
 
-    var tittle = req.body.phoneNumber;
     res.render('dashboard');
-    // const sessionCookie = req.cookies.session || '';
-    // getAuth().createSessionCookie(sessionCookie, true)
-    //     .then(() => {
-    //         res.render('dashboard', { tittle: tittle });
-    //     })
-    //     .catch(() => {
-    //       
-
-    //     })
-
 
 })
 
-// function getRandomInt(max) {
-//     return Math.floor(Math.random() * max);
-// }
-
-// app.get("/create-token", async(req, res) => {
-
-//     const userId = getRandomInt(999999999);
-//     const alias = req.query.alias;
-//     const displayname = "Mr Guest";
-//     // grab the userid from session, cookie etc
-//     const payload = {
-//         userId,
-//         username: alias || displayname,
-//         displayname,
-//         aliases: alias ? [alias] : [] // We can also set aliases for the userid, so that signin can be initiated without knowing the userid
-//     };
-
-//     console.log("creating-token");
-//     // Send the username to the passwordless api to get a token
-//     var response = await fetch(apiurl + "/register/token", {
-//         method: "POST",
-//         body: JSON.stringify(payload),
-//         headers: { ApiSecret: API_SECRET, 'Content-Type': 'application/json' }
-//     });
-
-//     console.log("passwordless api response", response.status, response.statusText);
-
-//     if (response.status == 409) {
-//         res.status(409);
-//         res.send("Ooops! Alias is already in use by another user. Please choose a unique alias");
-//         return;
-//     }
-//     var token = await response.text();
-//     console.log("received token: ", token);
-//     res.status(response.status);
-//     res.send(token);
-// });
 app.post('/sessionlogin', (req, res) => {
     const idToken = req.body.idToken.toString();
     const expiresIn = 60 * 60 * 24 * 5 * 1000;
