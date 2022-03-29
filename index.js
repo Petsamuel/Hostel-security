@@ -31,7 +31,10 @@ const csrfmiddleware = csrf({ cookies: true })
 const apiurl = process.env.API_URL || "https://apiv2.passwordless.dev";
 const API_SECRET = process.env.API_SECRET || "Bieefilled:secret:bf1185e1a863427ea9f9d0fe7bc524c2"; // Replace with your API secret
 const API_KEY = process.env.API_KEY || "Bieefilled:public:ddb7c9f8960d46fd84805e42d5cb6717"; // this will be injected to index.html
+app.get('/', (req, res) => {
 
+    res.render('index');
+});
 // app.use(function(req, res, next) {
 //     res.setHeader('Access-Control-Allow-Origin', '*')
 //     next();
