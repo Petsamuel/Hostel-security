@@ -1,28 +1,45 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/styles/style.css" />
-
-    <script src="js/firebase.js"></script>
-
-    <!-- <script src=”https://loginid-sdk.s3-us-west-1.amazonaws.com/sdk/js/0.9.8/loginid.web.min.js”></script> -->
-
     <title>index</title>
+  </head>
 
-</head>
+  <body class="bg-gray-300">
+    <!-- container -->
+    <section>
+      <!-- successModal -->
+      <%- include('./partials/successModal.ejs') %>
+      <!-- navbar -->
+      <%- include('./partials/navbar.ejs') %>
+      <!-- section1 -->
+      <span class="formContent">
+        <%-include('./partials/formsection.ejs') %> <%
+        include('./partials/verified.ejs') %>
+      </span>
+      <span class="verifiedContent hidden top-24 right-0 fixed w-96">
+        <%- include('./partials/verified.ejs') %>
+      </span>
+      <span class="footer"> <%- include('./partials/footer.ejs') %> </span>
+    </section>
 
-<body class="bg-gray-300">
-    <!-- navbar -->
-    <%- include('./partials/navbar.ejs') %>
-        <!-- section1 -->
-        <%-include('./partials/formsection.ejs') %>
-</body>
-<script src="js/form.js"></script>
-<script src="js/main.js"></script>
-<script src="https://cdn.passwordless.dev/dist/0.2.0/passwordless.iife.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+    <script>
+      var data = "<%-(result) %>";
+      var matric = "<%-(studentmat) %>";
+      var validity = "<%- (studentStatus) %>";
+      var studentInfo = "<%- (user) %>";
+      console.log(validity);
+    </script>
+  </body>
 
+  <script
+    src="https://cdn.passwordless.dev/dist/0.2.0/passwordless.iife.js "
+    crossorigin="anonymous "
+  ></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+  <script defer src="js/form.js"></script>
+  <script defer src="js/firebase.js"></script>
 </html>

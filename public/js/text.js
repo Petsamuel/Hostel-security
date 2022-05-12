@@ -1,55 +1,21 @@
-// onSignInSubmit = (e) => {
+const student = studentdata.map((items) => {
+    return parseInt(items.phoneNo);
+});
+console.log(student);
 
-//     const phoneNumber = "+234" + phoneNum.value;
-//     const appVerifier = window.recaptchaVerifier;
-//     firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-//         .then((confirmationResult) => {
-//             return confirmationResult.getidToken().then((idToken) => {
-//                 return fetch('/sessionlogin', {
-//                     method: 'POST',
-//                     headers: {
-//                         Accepts: 'Application/json',
-//                         'Content-Type': "Application/json",
-//                         "CSRF-Token": Cookies.get("XSRF-TOKEN"),
-//                     },
-//                     body: JSON.stringify({ idToken })
-//                 })
-
-//             })
-
-//             .catch((error) => {
-//                 phoneNum.value = '';
-//                 console.log(error);
-//             });
-//         })
-
-// }
-
-
-
-function onverifySubmit(event) {
-    event.preventDefault();
-    const code = otpverify.value
-    confirmationResult.confirm(code).then(({ user }) => {
-        console.log(user);
-
-        return user.getIdToken().then(idToken => {
-
-            return fetch('/sessionlogin', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': "application/json",
-                    "CSRF-Token": Cookies.get('XSRF-TOKEN'),
-                },
-                body: JSON.stringify({ idToken })
-            })
-        })
-    }).then(() => {
-        return firebase.auth().signOut();
-    }).then(() => {
-        window.location.assign('profile')
-
-    });
-
+const resultcheck = student.includes(num);
+if (resultcheck === true) {
+    console.log(`valid`);
+} else {
+    console.log(`invalid`);
 }
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAcdPogfXbLI35w8UMZoAETxO5DVDIHzPU",
+    authDomain: "security-system-5169e.firebaseapp.com",
+    projectId: "security-system-5169e",
+    storageBucket: "security-system-5169e.appspot.com",
+    messagingSenderId: "127453085475",
+    appId: "1:127453085475:web:c7ff9244d910f859e45696"
+};
+firebase.initializeApp(firebaseConfig)

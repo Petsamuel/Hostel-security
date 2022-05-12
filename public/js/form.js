@@ -1,221 +1,219 @@
-const registerform = document.getElementById("register");
 const loginform = document.getElementById("login");
-const loginbtn = document.getElementById("loginbtn");
 const otpverify = document.getElementById("verifyOtp");
 const phoneNum = document.getElementById("phoneNumber");
 const Submitbtn = document.getElementById("sign-in-button");
 const comfirmOtp = document.getElementById("loginsubmmit");
-const innerInfo = document.getElementById("container")
+const innerInfo = document.getElementById("container");
 const svg1 = document.getElementById("svg");
-const navlogin = document.getElementById("mlogin");
 const form = document.getElementById("formID");
-const status = document.getElementById("status");
-// document
-//     .getElementById("passwordless-signin")
-//     .addEventListener("click", handleSignInSubmit);
-// document
-//     .getElementById("passwordless-register")
-//     .addEventListener("click", RegisterPasswordless);
+const verifiedMenu = document.querySelector("#statMenu");
+//mobile login form
+const formContent = document.querySelector(".formContent");
+verifiedMenu.addEventListener("click", verifyMenu);
+const verifiedContent = document.querySelector(".verifiedContent");
 
-navlogin.addEventListener('click', () => {
-    svg1.classList.add('hidden');
-    form.classList.remove('hidden');
-});
-const registerbtn1 = document.getElementById("registerbtn ");
-registerbtn1.addEventListener("click", () => {
-    console.log('clicked');
-    registerform.classList.remove("hidden");
-    loginform.classList.add("hidden");
+function verifyMenu() {
+  formContent.classList.add("hidden");
+  verifiedContent.classList.remove("hidden");
+}
 
+const navlogin = document.querySelector("#mlogin");
+navlogin.addEventListener("click", () => {
+  svg1.classList.add("hidden");
+  form.classList.remove("hidden");
 });
 
-// loginbtn.addEventListener("click", () => {
-//     registerform.classList.add("hidden");
-//     loginform.classList.remove("hidden");
+const registerform = document.querySelector("#register");
+registerform.addEventListener("click", () => {
+  registerform.classList.remove("hidden");
+  loginform.classList.add("hidden");
+});
 
-// });
+const registerBtn = document.querySelector("#printIcon");
+registerBtn.addEventListener("click", () => {
+  registerform.classList.remove("hidden");
+  loginform.classList.add("hidden");
+});
 
+const loginbtn = document.querySelector("#loginbtn");
+loginbtn.addEventListener("click", () => {
+  registerform.classList.add("hidden");
+});
+const output = document.getElementById("message");
+function Output(text) {
+  const currentText = output.innerHTML;
+  var newLine = text;
+  output.innerHTML = newLine;
+}
 
-//EVERYTHING firebase Api
-window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
-    'size': 'invisible',
-    'callback': (response) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-        onSignInSubmit();
+//EVERYTHING FIREBASE Auth
+// -STEP1 SETTING RECAPTCHA
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+  "sign-in-button",
+  {
+    size: "invisible",
+    callback: (response) => {
+      // reCAPTCHA solved, allow signInWithPhoneNumber.
+      console.log("onload");
+      onSignInSubmit();
     },
-    defaultCountry: "NG"
-});
+    defaultCountry: "NG",
+  }
+);
+
+// DISPLAYING THE RECAPTURE WIDGET
 recaptchaVerifier.render().then((widgetId) => {
-    window.recaptchaWidgetId = widgetId;
+  window.recaptchaWidgetId = widgetId;
 });
 
-onSignInSubmit = (e) => {
+function isvalid() {
+  const isValid = Validity.includes(phoneNum.value);
+  console.log(isValid);
+  return;
+}
 
+//functionn to verify if num exists
+function verifynum() {
+  // init fb
+  // get the doc - users
+  // find the object with phoneNum
+  const valid = data.includes(phoneNum.value);
+  console.log(valid);
+  return valid;
+}
+
+function onSignInSubmit(event) {
+  event.preventDefault();
+  //verify phone number by calling api
+
+  //if num is verified proceed and get
+  if (verifynum() == true) {
     const phoneNumber = "+234" + phoneNum.value;
     const appVerifier = window.recaptchaVerifier;
-    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-        .then((confirmationResult) => {
-            window.confirmationResult = confirmationResult;
-            console.log(phoneNumber);
-            console.log(`AN OTP SENT TO ${phoneNumber}`);
-            phoneNum.value = '';
-        }).catch((error) => {
-            phoneNum.value = '';
-        });
-}
+    console.log(phoneNumber);
 
-
-function onverifySubmit(event) {
-    event.preventDefault();
-
-    const code = otpverify.value;
-    confirmationResult.confirm(code).then((result) => {
-
-        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-        const user = result.user;
-        otpverify.value = '';
-        window.location.assign('profile');
-        var credential = firebase.auth.PhoneAuthProvider.credential(confirmationResult.verificationId, code);
-        console.log(credential);
-    }).catch((error) => {
-        // User couldn't sign in (bad verification code?)
+    firebase
+      .auth()
+      .signInWithPhoneNumber(phoneNumber, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
         // ...
-        otpverify.value = ''
-    });
+        console.log("otp sent");
+        Output("[" + new Date().toLocaleTimeString() + "]: " + "OTP SENT");
+        document.querySelector(".icon").classList.remove("hidden");
 
-
+        return confirmationResult;
+      })
+      .catch((error) => {
+        const message = error.message;
+        Output(`${message}`);
+        document.querySelector(".icon").classList.remove("hidden");
+      });
+  } else {
+    //invalid form filled
+    Output(`NOT IN DATABASE`);
+    document.querySelector(".icon").classList.remove("hidden");
+  }
 }
 
+function onverifySubmit() {
+  const code = otpverify.value;
+  confirmationResult
+    .confirm(code)
+    .then((result) => {
+      const user = result.user;
+      // ...
+      console.log("successful");
+      console.log(user);
+      document.querySelector("#modalauth").classList.remove("hidden");
+    })
+    .catch((error) => {
+      const message = error.message;
 
+      Output(`${message}`);
 
+      console.log(message);
+    });
+}
 
+// signout
+function signoutbtn() {
+  firebase
+    .auth()
+    .signOut()
+    .then(() => {
+      window.location.assign("/");
+    })
+    .catch((error) => {
+      // An error happened.
+    });
+}
 
-
-// singout firebase
-signout = () => {
-        firebase.auth().signOut().then(() => {
-            // Sign-out successful.
-            window.location.assign('index')
-        }).catch((error) => {
-            console.log(`an error occured`, error)
-
-        });
-    }
-    //finger print js api liberd key
-const API_KEY = "Bieefilled:public:ddb7c9f8960d46fd84805e42d5cb6717"; // Replace this value with your API Key
-const BACKEND_URL = ""; // will use node/app.js as default, but if you can't run node, use the hosted demo: https://demo-backend.passwordless.dev
-
-// Print Status messages to UI.
-
-
+const status = document.getElementById("status");
 function Status(text) {
-    const currentText = status.innerHTML;
-    var newLine =
-        // "[" + new Date().toLocaleTimeString() + "]:\n " + 
-        text + "\n";
-    status.innerHTML = newLine + currentText;
+  const currentText = status.innerHTML;
+  var newLine = "[" + new Date().toLocaleTimeString() + "]: " + text + "\n";
+  status.innerHTML = newLine;
 }
-Status("Welcome! Please register or sign in");
+Status("Enter matricNo");
 
-if (API_KEY[0] === "<") {
-    console.log("WARNING: Please change the API_KEY in index.html and API_KEY_SECRET in app.js before running the example.")
-}
+document
+  .getElementById("passwordless-register")
+  .addEventListener("click", RegisterPasswordless);
 
-async function RegisterPasswordless(event) {
-    event.preventDefault();
-    const alias = document.getElementById("alias").value;
-
-    Status("Starting registering...");
-    /**
-     * Initiate the Passwordless client with your public api key
-     */
-    const p = new Passwordless.Client({
-        apiKey: API_KEY
-    });
-    /**
-     * Create token - Call your node backend to retrieve a token that we can use client-side to register a key to a alias
-     */
-    const backendRequest = await fetch(
-        BACKEND_URL + "/create-token?alias=" + alias
-    );
-    const backendResponse = await backendRequest.text();
-    if (!backendRequest.ok) {
-        // If our demo backend did not respond with success, show error in UI
-        Status(backendResponse);
-        return;
-    }
-    /**
-     *  Register a key - The Passwordless API and browser creates and stores a key, based on the token.
-     */
-    try {
-        await p.register(backendResponse);
-
-        Status("Successfully registered WebAuthn. You can now sign in!");
-
-        /**
-         * Done - the user can now sign in using the key
-         */
-    } catch (e) {
-        console.error("Things went bad", e);
-        Status("Things went bad, check console");
-    }
-}
-//functions for passwordless auth.
-async function handleSignInSubmit(e) {
-    e.preventDefault();
-    const alias = document.getElementById("alias").value;
-
-    Status("Starting sign in...");
-
-    /**
-     * Initiate the Passwordless client with your public api key
-     */
-    const p = new Passwordless.Client({
-        apiKey: API_KEY,
-    });
-
-    try {
-        /**
-         * Sign in - The Passwordless API and the browser initiates a sign in based on the alias
-         */
-
-        //var userId = await fetch("user/passwordless-id").then(r => r.text()); // get user id from database
-
-        const token = await p.signinWithAlias(alias);
-        //const token = await p.signinWithId(486761564);
-
-        console.log("Received token", token);
-        /**
-         * Verify the sign in - Call your node backend to verify the token created from the sign in
-         */
-        const user = await fetch(BACKEND_URL + "/verify-signin?token=" + token).then((r) =>
-            r.json()
-        );
-
-        /**
-         * Done - you can now check the user result for status, userid etc
-         */
-        Status("User details: " + JSON.stringify(user, null, 2));
-        Status("Yey! Succesfully signed in without a password!");
-
-        console.log("User", user);
-    } catch (e) {
-        console.error("Things went really bad: ", e);
-        Status("Things went bad, check console");
-    }
+function verifymat() {
+  const alias = document.getElementById("alias").value;
+  const validmat = matric.includes(alias);
+  console.log(validmat);
+  return validmat;
 }
 
-// (function() {
-//     const uid = null;
-//     firebase.auth().onAuthStateChanged(function(user) {
-//         if (user) {
-//             // User is signed in.
-//             uid = user.uid
-//         } else {
-//             uid = null
-//             window.location.assign('index')
-//         }
-//     });
+async function handleSignInSubmit() {
+  const alias = document.getElementById("alias").value;
 
+  if (verifymat() === true) {
+    Status("Please Wait...");
+    var challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
 
-// })();
+    var userID = "Kosv6fPtkDoh2Oz7Yq/pVgWHS8HhdlCto3cR0aBoVMw=";
+    var id = Uint8Array.from(window.atob(userID), (c) => c.charCodeAt(0));
+
+    var publicKey = {
+      challenge: challenge,
+
+      rp: {
+        name: "YCT Security System",
+      },
+
+      user: {
+        id: id,
+        name: alias,
+        displayName: alias,
+      },
+
+      pubKeyCredParams: [
+        { type: "public-key", alg: -7 },
+        { type: "public-key", alg: -257 },
+      ],
+    };
+
+    navigator.credentials
+      .create({ publicKey: publicKey })
+      .then((newCredentialInfo) => {
+        alert("SUCCESS", newCredentialInfo);
+        document.querySelector("#modalauth").classList.remove("hidden");
+      })
+      .catch((error) => {
+        alert("FAILED", error);
+      });
+  } else {
+    Status("not in database");
+  }
+}
+document
+  .getElementById("passwordless-signin")
+  .addEventListener("click", handleSignInSubmit);
+
+//--------------------------------------------------------------------------------//
+//--------------------------------------------------------------------------------//

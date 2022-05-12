@@ -1,81 +1,85 @@
-require('dotenv').config();
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
 const app = express();
-const firebase = require('firebase/app');
-const auth = require('firebase/auth');
-const firebaseConfig = require('./firebase');
+
+const {
+  doc,
+  getFirestore,
+  collection,
+  onSnapshot,
+  where,
+  query,
+  db,
+  colRef,
+  getDocs,
+} = require("./firebase");
 const fetch = require("node-fetch");
-const bodyParser = require('body-parser');
-const admin = require('firebase-admin')
-const serviceAccount = require('./serviceAccountKey.json')
-const csrf = require('csurf');
+const bodyParser = require("body-parser");
+const admin = require("firebase-admin");
 
+const serviceAccount = require("./serviceAccountKey.json");
+const csrf = require("csurf");
+const { json } = require("express");
 
-firebase.initializeApp(firebaseConfig);
-
-app.use(bodyParser.json());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 app.set("view engine", "ejs");
-app.set("views", ("./views"));
+app.set("views", "./views");
 app.use(express.static("./public"));
 app.use("/js", express.static("public/js"));
 app.use("/styles", express.static("public/styles"));
 
-
+//setting up the database and the webauthn api
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://security-system-5169e-default-rtdb.firebaseio.com"
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://security-system-5169e-default-rtdb.firebaseio.com",
 });
-const csrfmiddleware = csrf({ cookies: true })
 
-const apiurl = process.env.API_URL || "https://apiv2.passwordless.dev";
-const API_SECRET = process.env.API_SECRET || "Bieefilled:secret:bf1185e1a863427ea9f9d0fe7bc524c2"; // Replace with your API secret
-const API_KEY = process.env.API_KEY || "Bieefilled:public:ddb7c9f8960d46fd84805e42d5cb6717"; // this will be injected to index.html
-app.get('/', (req, res) => {
-
-    res.render('index');
+const API_URL = "https://apiv2.passwordless.dev";
+const API_SECRET = "biee:secret:c5218e3a9b614b4fba29744e476096c8"; // API_KEY_SECRET
+const API_KEY = "biee:public:3934336a0f5e4b86bbc5b9fc1b167262";
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
 });
-// app.use(function(req, res, next) {
-//     res.setHeader('Access-Control-Allow-Origin', '*')
-//     next();
-// });
-app.all('*', (req, res, next) => {
-    res.cookie("XSRF-TOKEN", req.csrfToken);
-    next();
-})
 
-app.all('/', (req, res) => {
+app.all("/", async (req, res) => {
+  const studentdata = await getDocs(colRef)
+    .then((snapshot) => {
+      let users = [];
+      snapshot.docs.map((doc) => {
+        users.push({ ...doc.data(), id: doc.id });
+      });
+      return users;
+    })
+    .catch((err) => {
+      console.log("failed to get users");
+    });
 
-    res.render('index');
-})
-app.get('/profile', (req, res) => {
+  let Studentinfo = studentdata.map((items) => {
+    // return items.phone_no && items.isVerified !== false;
+    return items.phone_no;
+  });
+  let StudentMat = studentdata.map((items) => {
+    return items.matricNo;
+  });
 
-    res.render('dashboard');
+  let studentStatus = studentdata.map((items) => {
+    return [items.phone_no, items.isverified];
+  });
 
-})
+  res.render("index", {
+    result: Studentinfo,
+    studentmat: StudentMat,
+    studentStatus: studentStatus,
+    user: studentdata,
+  });
+});
 
-app.post('/sessionlogin', (req, res) => {
-    const idToken = req.body.idToken.toString();
-    const expiresIn = 60 * 60 * 24 * 5 * 1000;
-    getAuth().createSessionCookie(idToken, { expiresIn })
-        .then(
-            (sessionCookie) => {
-                const options = { maxAge: expiresIn, httpOnly: true };
-                res.cookie('session', sessionCookie, options);
-                res.end(JSON.stringify({ status: "success" }))
-            },
-            (error) => {
-                console.log(error);
-            }
-        )
-})
-
-app.get('/sessionlogout', (req, res) => {
-    res.clearCookie(session);
-    res.redirect(index);
-})
-
-const port = process.env.PORT || 3000
+const port = 3000;
 app.listen(port, () => {
-    console.log(` app listening at http://localhost:${port}`)
-})
+  console.log(`Example app listening at http://localhost:${port}`);
+});
